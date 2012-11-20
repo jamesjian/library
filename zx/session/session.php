@@ -1,7 +1,6 @@
 <?php
-
 namespace Zx\Session;
-
+defined('SYSTEM_PATH') or die('No direct script access.');
 //use SessionHandlerInterface;
 use Zx\Model\Mysql;
 

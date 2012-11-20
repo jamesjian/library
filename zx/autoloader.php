@@ -1,5 +1,4 @@
 <?php
-
 namespace Zx;
 use \Zx\Test\Test;
 // this autoloader is for Zx classes such as \Zx\Session\Session::test();

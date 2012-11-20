@@ -1,6 +1,6 @@
 <?php
-defined('SYSPATH') or die('No direct script access.');
 namespace Zx\Tool;
+defined('SYSTEM_PATH') or die('No direct script access.');
 
 /**
  *  for file upload 

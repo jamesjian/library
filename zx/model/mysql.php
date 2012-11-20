@@ -1,6 +1,6 @@
 <?php
-
 namespace Zx\Model;
+defined('SYSTEM_PATH') or die('No direct script access.');
 
 class Mysql {
 

@@ -1,5 +1,6 @@
 <?php
 namespace Zx\View;
+defined('SYSTEM_PATH') or die('No direct script access.');
 class View{
         protected static $use_template=true;
         protected static $template_file_name='';

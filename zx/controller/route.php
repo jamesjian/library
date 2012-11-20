@@ -1,6 +1,6 @@
 <?php
-
 namespace Zx\Controller;
+defined('SYSTEM_PATH') or die('No direct script access.');
 
 use \Zx\Test\Test;
 

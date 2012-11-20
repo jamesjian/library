@@ -1,5 +1,6 @@
 <?php
 namespace Zx\Controller;
+defined('SYSTEM_PATH') or die('No direct script access.');
 use \Zx\Session\Session;
 use \Zx\Message\Message;
 use \Zx\View\View;

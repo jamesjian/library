@@ -1,5 +1,6 @@
 <?php
 namespace Zx\Test;
+defined('SYSTEM_PATH') or die('No direct script access.');
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 class Test{

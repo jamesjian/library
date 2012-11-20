@@ -1,4 +1,5 @@
 <?php
+defined('SYSTEM_PATH') or die('No direct script access.');
 /**
  * it's for PHP 5.2 
  * same as \Zx\Test\Test
