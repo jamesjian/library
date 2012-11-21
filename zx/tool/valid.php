@@ -3,7 +3,7 @@ namespace Zx\Tool;
 defined('SYSTEM_PATH') or die('No direct script access.');
 
 /**
- *  for file upload 
+ *  for validation
  */
 class Valid {
 
@@ -106,7 +106,7 @@ class Valid {
 	 */
 	public static function email($email, $strict = FALSE)
 	{
-		if (UTF8::strlen($email) > 254)
+		if (\Zx\Tool\UTF8::strlen($email) > 254)
 		{
 			return FALSE;
 		}

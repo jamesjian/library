@@ -38,7 +38,12 @@ class Route {
     public static function get_url() {
         return self::$url;
     }
-
+/**
+ * url will not accept any ? query string
+ * just use / to seperate query string
+ * for example: user/vcode?1353467613946
+ * should use user/vcode/1353467613946 instead
+ */
     public static function analyze_url() {
         self::$url = $_SERVER['REQUEST_URI'];
         $url = urldecode(substr(self::$url, strlen(URL_PREFIX))); //remove prefix such as "/pree/" in test server or "/" in live site
