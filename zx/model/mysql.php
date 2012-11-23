@@ -39,7 +39,7 @@ class Mysql {
             $sth = $dbh->prepare($sql);
             $sth->execute($params);
         } catch (PDOException $e) {
-            \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
+          //  \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
             die('Sorry, something wrong with the site, please try it later!');
         }
         return $dbh->lastInsertId();
