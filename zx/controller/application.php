@@ -5,6 +5,7 @@ use \Zx\Session\Session;
 use \Zx\Message\Message;
 use \Zx\View\View;
 use \Zx\Test\Test;
+
 /**
  */
 class Application {
@@ -34,14 +35,14 @@ class Application {
         //get view file, it's set in action method
         $view_file = View::get_view_file();
         if ($view_file <> '') {
-        //populate action variables into view file, they're set in action method
-        extract(View::get_action_variables());
+            //populate action variables into view file, they're set in action method
+            extract(View::get_action_variables());
 
-        ob_start();
-        include $view_file;
-        //must use $content as variable name, because it's used in template file
-        $content = ob_get_contents();
-        ob_end_clean();
+            ob_start();
+            include $view_file;
+            //must use $content as variable name, because it's used in template file
+            $content = ob_get_contents();
+            ob_end_clean();
         }
         $result = $content;
         //if use template
@@ -49,27 +50,26 @@ class Application {
             //get template file 
             $template_file = View::get_template_file();
             if ($template_file <> '') {
-            //populate template variables into template file, they're set in init method
-            extract(View::get_template_variables());
-            ob_start();
-            include $template_file;
-            $result = ob_get_contents();
-            ob_end_clean();
+                //populate template variables into template file, they're set in init method
+                extract(View::get_template_variables());
+                ob_start();
+                include $template_file;
+                $result = ob_get_contents();
+                ob_end_clean();
             }
         } else {
             //for ajax no template 
         }
-        
+
         //output it
         echo $result;
+    }
+
+    /**
+      usually no view
+     */
+    public static function cron_run() {
         
     }
-	/**
-		usually no view 
-	*/
-	public static function cron_run()
-	{
-	
-	}
 
 }

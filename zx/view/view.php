@@ -32,7 +32,7 @@ class View{
             self::$use_template = true;
         }
         /**
-         * 
+         * usually for ajax
          * set self::$use_template = false;
          */
         public static function do_not_use_template()
