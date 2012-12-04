@@ -1,5 +1,7 @@
 <?php
+
 namespace Zx\Model;
+
 defined('SYSTEM_PATH') or die('No direct script access.');
 
 class Mysql {
@@ -39,7 +41,7 @@ class Mysql {
             $sth = $dbh->prepare($sql);
             $sth->execute($params);
         } catch (PDOException $e) {
-          //  \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
+            //  \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
             die('Sorry, something wrong with the site, please try it later!');
         }
         return $dbh->lastInsertId();
@@ -92,11 +94,24 @@ class Mysql {
      * @return 1D array or boolean when false
      */
     public static function select_one($sql, $params = array()) {
+        //\Zx\Test\Test::object_log('$sql', $sql, __FILE__, __LINE__, __CLASS__, __METHOD__);
+
         $dbh = self::connect_db();
         try {
             $sth = $dbh->prepare($sql);
-            $sth->execute($params);
+            $r = $sth->execute($params);
+            if ($r) {
+                //\Zx\Test\Test::object_log('$r1', 'true', __FILE__, __LINE__, __CLASS__, __METHOD__);
+            } else {
+                //\Zx\Test\Test::object_log('$r1', 'false', __FILE__, __LINE__, __CLASS__, __METHOD__);
+            }
+
             $r = $sth->fetch();
+            if ($r) {
+                //\Zx\Test\Test::object_log('$r2', 'true', __FILE__, __LINE__, __CLASS__, __METHOD__);
+            } else {
+                //\Zx\Test\Test::object_log('$r2', 'false', __FILE__, __LINE__, __CLASS__, __METHOD__);
+            }
         } catch (PDOException $e) {
             \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
             die('Sorry, something wrong with the site, please try it later!');
@@ -120,9 +135,9 @@ class Mysql {
 
     /**
      * @usage
-         $query = Mysql::interpolateQuery($sql, $params);
-      \Zx\Test\Test::object_log('query', $query, __FILE__, __LINE__, __CLASS__, __METHOD__);           
-     
+      $query = Mysql::interpolateQuery($sql, $params);
+      \Zx\Test\Test::object_log('query', $query, __FILE__, __LINE__, __CLASS__, __METHOD__);
+
      * from stackoverflow
       http://stackoverflow.com/questions/210564/pdo-prepared-statements
      * Replaces any parameter placeholders in a query with the value of that
