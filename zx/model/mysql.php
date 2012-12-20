@@ -18,6 +18,7 @@ class Mysql {
                 $sql = "SET NAMES UTF8";
                 $sth = self::$dbh->prepare($sql);
                 $sth->execute();
+                self::$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );      //for debug          
                 return self::$dbh;
             } catch (\PDOException $e) {
                 \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
@@ -94,6 +95,7 @@ class Mysql {
      * @return 1D array or boolean when false
      */
     public static function select_one($sql, $params = array()) {
+        //\Zx\Test\Test::object_log('$sql', '::::::::::::::::::::::::::', __FILE__, __LINE__, __CLASS__, __METHOD__);
         //\Zx\Test\Test::object_log('$sql', $sql, __FILE__, __LINE__, __CLASS__, __METHOD__);
 
         $dbh = self::connect_db();
@@ -106,11 +108,17 @@ class Mysql {
                 //\Zx\Test\Test::object_log('$r1', 'false', __FILE__, __LINE__, __CLASS__, __METHOD__);
             }
 
-            $r = $sth->fetch();
-            if ($r) {
-                //\Zx\Test\Test::object_log('$r2', 'true', __FILE__, __LINE__, __CLASS__, __METHOD__);
+            $r = $sth->fetch();  //\PDO::FETCH_BOTH is default
+            //Note: when result is empty (no record found), it retrun false, but it doesn't meanu query is wrong
+            if ($r !== false) {
+                //\Zx\Test\Test::object_log('$r', 'not FALSE', __FILE__, __LINE__, __CLASS__, __METHOD__);
             } else {
-                //\Zx\Test\Test::object_log('$r2', 'false', __FILE__, __LINE__, __CLASS__, __METHOD__);
+                //or $dbh->errorInfo(), $dbh->errorCode();
+                \Zx\Test\Test::object_log('$r', 'FALSE', __FILE__, __LINE__, __CLASS__, __METHOD__);
+                \Zx\Test\Test::object_log('$r2 FALSE', $sth->errorInfo(), __FILE__, __LINE__, __CLASS__, __METHOD__);
+                \Zx\Test\Test::object_log('$r2 FALSE', $sth->errorCode(), __FILE__, __LINE__, __CLASS__, __METHOD__);
+                           
+                
             }
         } catch (PDOException $e) {
             \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
