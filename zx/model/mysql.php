@@ -7,7 +7,10 @@ defined('SYSTEM_PATH') or die('No direct script access.');
 class Mysql {
 
     protected static $dbh;
-
+    public static function get_dbh()
+    {
+        return self::$dbh;
+    }
     public static function connect_db() {
         if (isset(self::$dbh)) {
             return self::$dbh;
@@ -40,7 +43,11 @@ class Mysql {
         $dbh = self::connect_db();
         try {
             $sth = $dbh->prepare($sql);
-            $sth->execute($params);
+            $quoted_params = array();
+            foreach ($params as $column_name=>$column_value) {
+                $quoted_params[$column_name] = $dbh->quote($column_value);
+            }
+            $sth->execute($quoted_params);
         } catch (PDOException $e) {
             //  \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
             die('Sorry, something wrong with the site, please try it later!');
@@ -95,8 +102,9 @@ class Mysql {
      * @return 1D array or boolean when false
      */
     public static function select_one($sql, $params = array()) {
-        //\Zx\Test\Test::object_log('$sql', '::::::::::::::::::::::::::', __FILE__, __LINE__, __CLASS__, __METHOD__);
-        //\Zx\Test\Test::object_log('$sql', $sql, __FILE__, __LINE__, __CLASS__, __METHOD__);
+        
+        \Zx\Test\Test::object_log('$sql', $sql, __FILE__, __LINE__, __CLASS__, __METHOD__);
+        \Zx\Test\Test::object_log('$params', $params, __FILE__, __LINE__, __CLASS__, __METHOD__);
 
         $dbh = self::connect_db();
         try {
