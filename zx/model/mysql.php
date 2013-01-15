@@ -3,12 +3,27 @@
 namespace Zx\Model;
 
 defined('SYSTEM_PATH') or die('No direct script access.');
+/**
+ * Note:
+ * if not used prepared statement to get param, make sure quote all the parameters before query.
+ * For example:
+ * 
+        $dbh = Mysql::get_dbh();
+        $title = $dbh->quote(strtolower($title));
+        $sql = sprintf(" SELECT * FROM  ad WHERE title=%s",$title);
+ *      Mysql::select_one($sql);
+ * 
+ * Otherwise it will report mysql error message if has some special characters such as single quotes.
+ */
 
 class Mysql {
 
     protected static $dbh;
     public static function get_dbh()
     {
+        if (!isset(self::$dbh)) {
+            self::connect_db();
+        }
         return self::$dbh;
     }
     public static function connect_db() {
@@ -43,11 +58,16 @@ class Mysql {
         $dbh = self::connect_db();
         try {
             $sth = $dbh->prepare($sql);
+            /* no need to quote again, if parameters are in $params array, 
+             * it will be handled by PHP
             $quoted_params = array();
             foreach ($params as $column_name=>$column_value) {
                 $quoted_params[$column_name] = $dbh->quote($column_value);
             }
             $sth->execute($quoted_params);
+             * 
+             */
+            $sth->execute($params);
         } catch (PDOException $e) {
             //  \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
             die('Sorry, something wrong with the site, please try it later!');
@@ -103,8 +123,8 @@ class Mysql {
      */
     public static function select_one($sql, $params = array()) {
         
-        \Zx\Test\Test::object_log('$sql', $sql, __FILE__, __LINE__, __CLASS__, __METHOD__);
-        \Zx\Test\Test::object_log('$params', $params, __FILE__, __LINE__, __CLASS__, __METHOD__);
+        //\Zx\Test\Test::object_log('$sql', $sql, __FILE__, __LINE__, __CLASS__, __METHOD__);
+        //\Zx\Test\Test::object_log('$params', $params, __FILE__, __LINE__, __CLASS__, __METHOD__);
 
         $dbh = self::connect_db();
         try {
@@ -121,12 +141,13 @@ class Mysql {
             if ($r !== false) {
                 //\Zx\Test\Test::object_log('$r', 'not FALSE', __FILE__, __LINE__, __CLASS__, __METHOD__);
             } else {
-                //or $dbh->errorInfo(), $dbh->errorCode();
-                \Zx\Test\Test::object_log('$r', 'FALSE', __FILE__, __LINE__, __CLASS__, __METHOD__);
-                \Zx\Test\Test::object_log('$r2 FALSE', $sth->errorInfo(), __FILE__, __LINE__, __CLASS__, __METHOD__);
-                \Zx\Test\Test::object_log('$r2 FALSE', $sth->errorCode(), __FILE__, __LINE__, __CLASS__, __METHOD__);
-                           
-                
+                $error = $sth->errorInfo();
+                if ($error[0] != '00000') { 
+                // if 00000 means no error when no result returns (empty result set)
+                    \Zx\Test\Test::object_log('$r', $r, __FILE__, __LINE__, __CLASS__, __METHOD__);
+                    \Zx\Test\Test::object_log('$r2 FALSE', $sth->errorInfo(), __FILE__, __LINE__, __CLASS__, __METHOD__);
+                    \Zx\Test\Test::object_log('$r2 FALSE', $sth->errorCode(), __FILE__, __LINE__, __CLASS__, __METHOD__);
+                }
             }
         } catch (PDOException $e) {
             \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
