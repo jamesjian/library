@@ -3,29 +3,30 @@
 namespace Zx\Model;
 
 defined('SYSTEM_PATH') or die('No direct script access.');
+
 /**
  * Note:
  * if not used prepared statement to get param, make sure quote all the parameters before query.
  * For example:
  * 
-        $dbh = Mysql::get_dbh();
-        $title = $dbh->quote(strtolower($title));
-        $sql = sprintf(" SELECT * FROM  ad WHERE title=%s",$title);
+  $dbh = Mysql::get_dbh();
+  $title = $dbh->quote(strtolower($title));
+  $sql = sprintf(" SELECT * FROM  ad WHERE title=%s",$title);
  *      Mysql::select_one($sql);
  * 
  * Otherwise it will report mysql error message if has some special characters such as single quotes.
  */
-
 class Mysql {
 
     protected static $dbh;
-    public static function get_dbh()
-    {
+
+    public static function get_dbh() {
         if (!isset(self::$dbh)) {
             self::connect_db();
         }
         return self::$dbh;
     }
+
     public static function connect_db() {
         if (isset(self::$dbh)) {
             return self::$dbh;
@@ -36,7 +37,7 @@ class Mysql {
                 $sql = "SET NAMES UTF8";
                 $sth = self::$dbh->prepare($sql);
                 $sth->execute();
-                self::$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );      //for debug          
+                self::$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);      //for debug          
                 return self::$dbh;
             } catch (\PDOException $e) {
                 \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
@@ -47,7 +48,8 @@ class Mysql {
     }
 
     /**
-     * 
+     * Be careful, if the primary key of a table is not auto incremented integer, it cannot use this method
+     * just use self::exec($sql, $params = array()) 
      * @param string $sql INSERT INTO session SET session_id=:id, session_data=:data, expires=:time
      * @param array $params array(':id' => $id, ':data' => $data, ':time' => $time)
      * @return int
@@ -60,11 +62,11 @@ class Mysql {
             $sth = $dbh->prepare($sql);
             /* no need to quote again, if parameters are in $params array, 
              * it will be handled by PHP
-            $quoted_params = array();
-            foreach ($params as $column_name=>$column_value) {
-                $quoted_params[$column_name] = $dbh->quote($column_value);
-            }
-            $sth->execute($quoted_params);
+              $quoted_params = array();
+              foreach ($params as $column_name=>$column_value) {
+              $quoted_params[$column_name] = $dbh->quote($column_value);
+              }
+              $sth->execute($quoted_params);
              * 
              */
             $sth->execute($params);
@@ -122,7 +124,7 @@ class Mysql {
      * @return 1D array or boolean when false
      */
     public static function select_one($sql, $params = array()) {
-        
+
         //\Zx\Test\Test::object_log('$sql', $sql, __FILE__, __LINE__, __CLASS__, __METHOD__);
         //\Zx\Test\Test::object_log('$params', $params, __FILE__, __LINE__, __CLASS__, __METHOD__);
 
@@ -142,8 +144,8 @@ class Mysql {
                 //\Zx\Test\Test::object_log('$r', 'not FALSE', __FILE__, __LINE__, __CLASS__, __METHOD__);
             } else {
                 $error = $sth->errorInfo();
-                if ($error[0] != '00000') { 
-                // if 00000 means no error when no result returns (empty result set)
+                if ($error[0] != '00000') {
+                    // if 00000 means no error when no result returns (empty result set)
                     \Zx\Test\Test::object_log('$r', $r, __FILE__, __LINE__, __CLASS__, __METHOD__);
                     \Zx\Test\Test::object_log('$r2 FALSE', $sth->errorInfo(), __FILE__, __LINE__, __CLASS__, __METHOD__);
                     \Zx\Test\Test::object_log('$r2 FALSE', $sth->errorCode(), __FILE__, __LINE__, __CLASS__, __METHOD__);
@@ -210,6 +212,54 @@ class Mysql {
         $query = preg_replace($keys, $values, $query, 1);
 
         return $query;
+    }
+
+    /**
+     * Notice: primary key must be auto incremented integer. 
+     * otherwise use self::exec() method
+     * @param string $table
+     * @param array $fields
+     * @param array $values
+     * @return integer or boolean(false)
+     */
+    public static function create($table = '', $fields = array(), $values = array()) {
+        if ($table <> '' && count($fields) > 0 && count($values) > 0) {
+            foreach ($fields as $field) {
+                if (array_key_exists($field, $values)) {
+                    $insert_arr[] = "$field=:$field";
+                    $params[":$field"] = $values[$field];
+                }
+            }
+            $insert_str = implode(',', $insert_arr);
+            $sql = 'INSERT INTO ' . $table . ' SET ' . $insert_str;
+            $id = self::insert($sql, $params);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * primary key must be id, otherwise use self::exec()
+     * @param type $table
+     * @param type $id
+     * @param type $fields
+     * @param type $values
+     * @return boolean
+     */
+    public static function update($table = '', $id = 0, $fields = array(), $values = array()) {
+        if ($table <> '' && $id > 0 && count($fields) > 0 && count($values) > 0) {
+            foreach ($fields as $field) {
+                if (array_key_exists($field, $values)) {
+                    $update_arr[] = "$field=:$field";
+                    $params[":$field"] = $values[$field];
+                }
+            }
+            $params[':id'] = $id;
+            $sql = 'UPDATE ' . $table . ' SET ' . $update_str . ' WHERE id=:id';
+            return Mysql::exec($sql, $params);
+        } else {
+            return false;
+        }
     }
 
 }
