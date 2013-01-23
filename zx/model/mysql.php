@@ -55,8 +55,8 @@ class Mysql {
      * @return int
      */
     public static function insert($sql, $params = array()) {
-        //\Zx\Test\Test::object_log('$sql', $sql, __FILE__, __LINE__, __CLASS__, __METHOD__);
-        //\Zx\Test\Test::object_log('$params', $params, __FILE__, __LINE__, __CLASS__, __METHOD__);
+//\Zx\Test\Test::object_log('$sql', $sql, __FILE__, __LINE__, __CLASS__, __METHOD__);
+//\Zx\Test\Test::object_log('$params', $params, __FILE__, __LINE__, __CLASS__, __METHOD__);
         $dbh = self::connect_db();
         try {
             $sth = $dbh->prepare($sql);
@@ -71,7 +71,7 @@ class Mysql {
              */
             $sth->execute($params);
         } catch (PDOException $e) {
-            //  \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
+//  \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
             die('Sorry, something wrong with the site, please try it later!');
         }
         return $dbh->lastInsertId();
@@ -84,8 +84,8 @@ class Mysql {
      * @return number of rows affected by the last SQL statement
      */
     public static function exec($sql, $params = array()) {
-        //\Zx\Test\Test::object_log('$sql', $sql, __FILE__, __LINE__, __CLASS__, __METHOD__);
-        //\Zx\Test\Test::object_log('$params', $params, __FILE__, __LINE__, __CLASS__, __METHOD__);
+//\Zx\Test\Test::object_log('$sql', $sql, __FILE__, __LINE__, __CLASS__, __METHOD__);
+//\Zx\Test\Test::object_log('$params', $params, __FILE__, __LINE__, __CLASS__, __METHOD__);
         $dbh = self::connect_db();
         try {
             $sth = $dbh->prepare($sql);
@@ -94,7 +94,7 @@ class Mysql {
             \Zx\Test\Test::object_log('$e->getMessage()', $e->getMessage(), __FILE__, __LINE__, __CLASS__, __METHOD__);
             die('Sorry, something wrong with the site, please try it later!');
         }
-        //return $sth->rowCount(); //may be 0 if nothing to delete or update
+//return $sth->rowCount(); //may be 0 if nothing to delete or update
         return true;
     }
 
@@ -125,27 +125,27 @@ class Mysql {
      */
     public static function select_one($sql, $params = array()) {
 
-        //\Zx\Test\Test::object_log('$sql', $sql, __FILE__, __LINE__, __CLASS__, __METHOD__);
-        //\Zx\Test\Test::object_log('$params', $params, __FILE__, __LINE__, __CLASS__, __METHOD__);
+//\Zx\Test\Test::object_log('$sql', $sql, __FILE__, __LINE__, __CLASS__, __METHOD__);
+//\Zx\Test\Test::object_log('$params', $params, __FILE__, __LINE__, __CLASS__, __METHOD__);
 
         $dbh = self::connect_db();
         try {
             $sth = $dbh->prepare($sql);
             $r = $sth->execute($params);
             if ($r) {
-                //\Zx\Test\Test::object_log('$r1', 'true', __FILE__, __LINE__, __CLASS__, __METHOD__);
+//\Zx\Test\Test::object_log('$r1', 'true', __FILE__, __LINE__, __CLASS__, __METHOD__);
             } else {
-                //\Zx\Test\Test::object_log('$r1', 'false', __FILE__, __LINE__, __CLASS__, __METHOD__);
+//\Zx\Test\Test::object_log('$r1', 'false', __FILE__, __LINE__, __CLASS__, __METHOD__);
             }
 
             $r = $sth->fetch();  //\PDO::FETCH_BOTH is default
-            //Note: when result is empty (no record found), it retrun false, but it doesn't meanu query is wrong
+//Note: when result is empty (no record found), it retrun false, but it doesn't meanu query is wrong
             if ($r !== false) {
-                //\Zx\Test\Test::object_log('$r', 'not FALSE', __FILE__, __LINE__, __CLASS__, __METHOD__);
+//\Zx\Test\Test::object_log('$r', 'not FALSE', __FILE__, __LINE__, __CLASS__, __METHOD__);
             } else {
                 $error = $sth->errorInfo();
                 if ($error[0] != '00000') {
-                    // if 00000 means no error when no result returns (empty result set)
+// if 00000 means no error when no result returns (empty result set)
                     \Zx\Test\Test::object_log('$r', $r, __FILE__, __LINE__, __CLASS__, __METHOD__);
                     \Zx\Test\Test::object_log('$r2 FALSE', $sth->errorInfo(), __FILE__, __LINE__, __CLASS__, __METHOD__);
                     \Zx\Test\Test::object_log('$r2 FALSE', $sth->errorCode(), __FILE__, __LINE__, __CLASS__, __METHOD__);
@@ -191,7 +191,7 @@ class Mysql {
         $keys = array();
         $values = $params;
 
-        # build a regular expression for each parameter
+# build a regular expression for each parameter
         foreach ($params as $key => $value) {
             if (is_string($key)) {
                 $keys[] = '/' . $key . '/';
@@ -206,8 +206,8 @@ class Mysql {
                 $values[$key] = 'NULL';
         }
 
-        // Walk the array to see if we can add single-quotes to strings, this line might be a problem, we can not add single quote to where clause
-        //array_walk($values, create_function('&$v, $k', 'if (!is_numeric($v) && $v!="NULL") $v = "\'".$v."\'";'));
+// Walk the array to see if we can add single-quotes to strings, this line might be a problem, we can not add single quote to where clause
+//array_walk($values, create_function('&$v, $k', 'if (!is_numeric($v) && $v!="NULL") $v = "\'".$v."\'";'));
 
         $query = preg_replace($keys, $values, $query, 1);
 
@@ -217,13 +217,15 @@ class Mysql {
     /**
      * Notice: primary key must be auto incremented integer. 
      * otherwise use self::exec() method
-     * @param string $table
-     * @param array $fields
-     * @param array $values
+     * @param string $table usually Model_TableXXX::$table
+     * @param array $fields all fields in the table usually use Model_TableXXX::$fields
+     * @param array $values array(field_name=>field_value, ...  ) such as ('title'=>'xxx','content'=>'yyy', ... );
      * @return integer or boolean(false)
      */
     public static function create($table = '', $fields = array(), $values = array()) {
         if ($table <> '' && count($fields) > 0 && count($values) > 0) {
+            $insert_arr = array();
+            $params = array();
             foreach ($fields as $field) {
                 if (array_key_exists($field, $values)) {
                     $insert_arr[] = "$field=:$field";
@@ -233,6 +235,7 @@ class Mysql {
             $insert_str = implode(',', $insert_arr);
             $sql = 'INSERT INTO ' . $table . ' SET ' . $insert_str;
             $id = self::insert($sql, $params);
+            return $id;
         } else {
             return false;
         }
@@ -240,23 +243,112 @@ class Mysql {
 
     /**
      * primary key must be id, otherwise use self::exec()
-     * @param type $table
-     * @param type $id
-     * @param type $fields
-     * @param type $values
+     * @param integer $id
+     * @param string $table usually Model_TableXXX::$table
+     * @param array $fields all fields in the table usually use Model_TableXXX::$fields
+     * @param array $values array(field_name=>field_value, ...  ) such as ('title'=>'xxx','content'=>'yyy', ... );
+     * 
      * @return boolean
      */
     public static function update($table = '', $id = 0, $fields = array(), $values = array()) {
         if ($table <> '' && $id > 0 && count($fields) > 0 && count($values) > 0) {
+            $update_arr = array();
+            $params = array(':id' => $id);
             foreach ($fields as $field) {
                 if (array_key_exists($field, $values)) {
                     $update_arr[] = "$field=:$field";
                     $params[":$field"] = $values[$field];
                 }
             }
-            $params[':id'] = $id;
             $sql = 'UPDATE ' . $table . ' SET ' . $update_str . ' WHERE id=:id';
-            return Mysql::exec($sql, $params);
+            return self::exec($sql, $params);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * primary key must be id, otherwise use self::exec() 
+     * @param string $table usually Model_TableXXX::$table
+     * @param integer $id
+     * @return boolean
+     */
+    public static function delete($table = '', $id = 0) {
+        if ($table <> '') {
+            $sql = "Delete FROM " . $table . " WHERE id=:id";
+            $params = array(':id' => $id);
+            return self::exec($sql, $params);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * it's only for the simplest retrieve, no join with another table
+     * @param string $table usually Model_TableXXX::$table
+     * @param int $id
+     * @return 1D array or boolean when false 
+     */
+    public static function get_one($table = '', $id = 0) {
+        if ($table <> '') {
+            $sql = "SELECT * FROM " . $table . " WHERE id=:id";
+            $params = array(':id' => $id);
+            return self::select_one($sql, $params);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * it's only for the simplest retrieve, no join with another table
+     * @param string $table usually Model_TableXXX::$table
+     * @param string $where
+     * @return 1D array or boolean when false 
+     */
+    public static function get_one_by_where($table = '', $where) {
+        if ($table <> '') {
+            $sql = "SELECT * FROM " . $table . " WHERE $where";
+            return self::select_one($sql);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * it's only for the simplest retrieve, no join with another table
+     * @param string $table
+     * @param string $where
+     * @param int $offset
+     * @param int $row_count
+     * @param string $order_by  if don't have date_created field, must provide order by field.
+     * @param string $direction
+     * @return type
+     */
+    public static function get_all($table = '', $where = '1', $offset = 0, $row_count = MAXIMUM_ROWS, $order_by = 'date_created', $direction = 'DESC') {
+        if ($table <> '') {
+            $sql = "SELECT *  FROM " . $table . " WHERE $where
+            ORDER BY $order_by $direction  LIMIT $offset, $row_count";
+            return self::select_all($sql);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * it's only for the simplest count, no join with another table
+     * @param string $table usually Model_TableXXX::$table
+     * @param string $where
+     * @return boolean
+     */
+    public static function get_num($table = '', $where = '1') {
+        if ($table <> '') {
+            $sql = "SELECT COUNT(*) AS num FROM " . $table . " WHERE $where";
+            $result = self::select_one($sql);
+            if ($result) {
+                return $result['num'];
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
